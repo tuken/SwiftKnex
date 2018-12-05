@@ -15,14 +15,17 @@ extension Connection {
         do {
             try callback(self)
             _ = try query("COMMIT;")
+            isTransacting = false
             release()
         } catch {
             do {
                 _ = try query("ROLLBACK;")
             } catch {
+                isTransacting = false
                 release()
                 throw error
             }
+            isTransacting = false
             release()
             throw error
         }
