@@ -2,11 +2,14 @@
 
 sudo service mysql stop || echo "mysql not stopped"
 sudo stop mysql-5.6 || echo "mysql-5.6 not stopped"
-echo mysql-apt-config mysql-apt-config/select-server select mysql-5.7 | sudo debconf-set-selections
 wget http://dev.mysql.com/get/mysql-apt-config_0.8.11-1_all.deb
-sudo dpkg --install mysql-apt-config_0.8.11-1_all.deb
+sudo debconf-set-selections <<< 'mysql-apt-config mysql-apt-config/select-tools select MySQL Server (Currently selected: mysql-5.7)'
+sudo debconf-set-selections <<< "mysql-apt-config mysql-apt-config/select-preview select mysql-5.7"
+sudo debconf-set-selections <<< "mysql-apt-config mysql-apt-config/select-server select mysql-5.7"
+sudo debconf-set-selections <<< "mysql-apt-config mysql-apt-config/select-product select Ok"
+DEBIAN_FRONTEND=noninteractive sudo dpkg -i mysql-apt-config_0.8.11-1_all.deb
 sudo apt-get update -q
-sudo apt-get install -q -y -o Dpkg::Options::=--force-confnew mysql-server
+sudo apt-get install -q -y mysql-server
 sudo mysql_upgrade
 
 set -x
