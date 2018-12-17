@@ -11,13 +11,14 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install mysql; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then mysql.server start; fi
-  - echo `mysql --version`
   - mysql -uroot -e 'CREATE DATABASE swift_knex_test;'
 
 install:
   - source Scripts/install-swift.sh
 
 script:
+  - mysql --version
+  - swift --version
   - swift build
   - swift build -c release
   - swift test
