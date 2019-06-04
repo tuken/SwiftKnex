@@ -12,20 +12,16 @@ typealias PacketStream = TCPStream
 
 extension PacketStream {
     
-    func readHeader() throws -> (UInt32, Int) {
-        let b = try read(upTo: 3).uInt24()
-        let pn = try read(upTo: 1)[0]
-        return (b, Int(pn))
-    }
-    
     func readPacket() throws -> (Bytes, Int) {
-        let (len, packnr) = try readHeader()
+        let len = try read(upTo: 3).uInt24()
+        let seq = Int(try read(upTo: 1)[0])
+        
         var bytes = Bytes()
         while bytes.count < Int(len) {
             bytes.append(contentsOf: try read(upTo: Int(len)))
         }
         
-        return (bytes, packnr)
+        return (bytes, seq)
     }
     
     func writeHeader(_ len: UInt32, pn: UInt8) throws {
