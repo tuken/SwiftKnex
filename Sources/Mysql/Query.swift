@@ -36,7 +36,15 @@ extension Connection {
         sqlLog(query, bindParams: params)
         
         let stmt = try prepare(query)
-        
+        defer {
+            do {
+                try stream.writePacket(stmt.closePacket(), packnr: -1)
+            }
+            catch {
+                print("failed to stmtClose: \(error)")
+            }
+        }
+
         let packet = try stmt.executePacket(params: params)
         
         try stream.writePacket(packet, packnr: -1)

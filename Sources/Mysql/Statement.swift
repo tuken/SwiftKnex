@@ -28,7 +28,19 @@ final class Statement {
     init(prepareResult: PrepareResultPacket) {
         self.prepareResult = prepareResult
     }
-    
+
+    func closePacket() -> Bytes {
+        var bytes = [UInt8]()
+
+        // command [1 byte]
+        bytes.append(Commands.stmtClose.rawValue)
+
+        // statement_id [4 bytes]
+        bytes.append(contentsOf: [UInt8].UInt32Array(prepareResult.id))
+
+        return bytes
+    }
+
     func executePacket(params: [Any]) throws -> Bytes {
         if params.count != Int(prepareResult.paramCount) {
             throw StatementError.argsCountMismatch
