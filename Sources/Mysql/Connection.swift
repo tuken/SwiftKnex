@@ -116,6 +116,7 @@ public final class Connection: ConnectionType {
     public func close() throws {
         try write(.quit)
         stream.close()
+        isUsed = false
         _isClosed = true
     }
 }
