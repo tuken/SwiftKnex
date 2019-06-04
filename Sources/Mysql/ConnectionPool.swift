@@ -83,7 +83,7 @@ public final class ConnectionPool: ConnectionType {
     
     func getConnection(_ retryCount: Int = 0) throws -> Connection {
         // TODO should implement timeout
-        if Double(retryCount) > (0.1*10)*5 {
+        if Double(retryCount) > (0.1 * 10) * 5 {
             throw ConnectionPoolError.failedToGetConnectionFromPool
         }
         
@@ -100,7 +100,7 @@ public final class ConnectionPool: ConnectionType {
         _ = cond.wait(timeout: 0.1)
         cond.mutex.unlock()
         
-        return try getConnection(retryCount+1)
+        return try getConnection(retryCount + 1)
     }
     
     public func close () throws {

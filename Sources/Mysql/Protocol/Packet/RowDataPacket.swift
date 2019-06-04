@@ -32,7 +32,7 @@ class RowDataPacket: RowDataParsable {
         var row = Row()
         var pos = 0
         
-        for index in 0...columns.count-1 {
+        for index in 0...columns.count - 1 {
             let (name, n) = lenEncStr(Array(bytes[pos..<bytes.count]))
             pos += n
             
@@ -80,7 +80,8 @@ class RowDataPacket: RowDataParsable {
                     row[column.name] = NSNull()
                     
                 }
-            } else {
+            }
+            else {
                 row[column.name] = NSNull()
             }
         }

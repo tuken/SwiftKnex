@@ -9,15 +9,21 @@
 import Foundation
 
 public enum ConnectionError: Error {
+    
     case failedToParseHandshakeOf(String)
+    
     case wrongHandshake
 }
 
 // syncronous connection
 public final class Connection: ConnectionType {
+    
     public let url: URL
+    
     public let user: String
+    
     public let password: String?
+    
     public let database: String?
     
     private var _isClosed = true
@@ -50,11 +56,7 @@ public final class Connection: ConnectionType {
         let (handshakeBytes, packnr) = try self.stream.readPacket()
         let hp = try HandshakePacket(bytes: handshakeBytes)
         
-        let authPacket = hp.buildAuthPacket(
-            user: user,
-            password: password,
-            database: database
-        )
+        let authPacket = hp.buildAuthPacket(user: user, password: password, database: database)
         
         try stream.writePacket(authPacket, packnr: packnr)
         let (bytes, _) = try stream.readPacket()
@@ -74,13 +76,13 @@ public final class Connection: ConnectionType {
         try stream.writePacket([cmd.rawValue], packnr: -1)
     }
     
-    func reserve(){
+    func reserve() {
         cond.mutex.lock()
         isUsed = true
         cond.mutex.unlock()
     }
     
-    func release(){
+    func release() {
         cond.mutex.lock()
         isUsed = false
         cond.mutex.unlock()
@@ -90,11 +92,13 @@ public final class Connection: ConnectionType {
         let (bytes, _) = try stream.readPacket()
         if let okPacket = try OKPacket(bytes: bytes) {
             return (0, okPacket)
-        } else {
+        }
+        else {
             let (_num, n) = lenEncInt(bytes)
             if let num = _num, (n - bytes.count) == 0 {
                 return (Int(num), nil)
-            } else {
+            }
+            else {
                 return (0, nil)
             }
         }

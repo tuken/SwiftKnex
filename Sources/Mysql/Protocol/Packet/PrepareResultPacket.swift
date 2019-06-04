@@ -7,12 +7,16 @@
 //
 
 enum PrepareResultPacketError: Error {
+    
     case failedToParsePrepareResultPacket
 }
 
 public struct PrepareResultPacket {
+    
     let id: UInt32
+    
     let columnCount: UInt16
+    
     let paramCount: UInt16
     
     init?(bytes: [UInt8]) throws {

@@ -3,10 +3,11 @@ import CLibreSSL
 import Foundation
 
 enum MySQLError: Error {
+    
     case rawError(Int, String)
 }
 
-func createErrorFrom(errorPacket bytes :[UInt8]) -> MySQLError {
+func createErrorFrom(errorPacket bytes: [UInt8]) -> MySQLError {
     if bytes[0] != 0xff {
         return MySQLError.rawError(-1, "EOF encountered")
     }
@@ -17,6 +18,7 @@ func createErrorFrom(errorPacket bytes :[UInt8]) -> MySQLError {
     if bytes[3] == 0x23 {
         pos = 9
     }
+    
     var d1 = Array(bytes[pos..<bytes.count])
     d1.append(0)
     let errStr = d1.string()
@@ -32,7 +34,7 @@ func sha1(_ data: [UInt8]) -> [UInt8] {
     return md
 }
 
-func encryptPassword(for password: String, scramble: [UInt8]) -> [UInt8]{
+func encryptPassword(for password: String, scramble: [UInt8]) -> [UInt8] {
     if password.isEmpty {
         return []
     }
@@ -112,32 +114,30 @@ private func escapeData(_ data: [UInt8]) -> String {
     if let str = String(bytes: res, encoding: String.Encoding.ascii) {
         return str
     }
+    
     return ""
 }
 
 func stringValue(_ val: Any) -> String {
     switch val {
-    case is UInt8, is Int8, is Int, is UInt, is UInt16, is Int16, is UInt32, is Int32,
-         is UInt64, is Int64, is Float, is Double:
+    case is UInt8, is Int8, is Int, is UInt, is UInt16, is Int16, is UInt32, is Int32, is UInt64, is Int64, is Float, is Double:
         return "\(val)"
+        
     case is String:
         return "\"\(val)\""
+        
     case is Data:
         let v = val as! Data
-        
         let count = v.count / MemoryLayout<UInt8>.size
         
-        // create an array of Uint8
+        // create an array of UInt8
         var array = [UInt8](repeating:0, count: count)
         
         // copy bytes into array
         v.copyBytes(to: &array, count:count * MemoryLayout<UInt8>.size)
         
-        
         let str = escapeData(array)
-        
         return "\"\(str)\""
-        
         
     default:
         return ""
@@ -160,11 +160,11 @@ func skipLenEncStr(_ data: [UInt8]) -> Int {
     if data.count >= n {
         return n
     }
+    
     return n
 }
 
-func lenEncBin(_ b:[UInt8]) ->([UInt8]?, Int) {
-    
+func lenEncBin(_ b: [UInt8]) -> ([UInt8]?, Int) {
     var (_num, n) = lenEncInt(b)
     
     guard let num = _num else {
@@ -172,14 +172,13 @@ func lenEncBin(_ b:[UInt8]) ->([UInt8]?, Int) {
     }
     
     if num < 1 {
-        
         return (nil, n)
     }
     
     n += Int(num)
     
     if b.count >= n {
-        let str = Array(b[n-Int(num)...n-1])
+        let str = Array(b[n - Int(num)...n - 1])
         return (str, n)
     }
     
@@ -188,7 +187,6 @@ func lenEncBin(_ b:[UInt8]) ->([UInt8]?, Int) {
 
 
 func lenEncStr(_ b: [UInt8]) -> (String?, Int) {
-    
     var (_num, n) = lenEncInt(b)
     
     guard let num = _num else {
@@ -196,14 +194,13 @@ func lenEncStr(_ b: [UInt8]) -> (String?, Int) {
     }
     
     if num < 1 {
-        
         return ("", n)
     }
     
     n += Int(num)
     
     if b.count >= n {
-        var str = Array(b[n-Int(num)...n-1])
+        var str = Array(b[n - Int(num)...n - 1])
         str.append(0)
         return (str.string(), n)
     }
@@ -211,41 +208,37 @@ func lenEncStr(_ b: [UInt8]) -> (String?, Int) {
     return ("", n)
 }
 
-func lenEncIntArray(_ v:UInt64) -> [UInt8] {
-    
+func lenEncIntArray(_ v: UInt64) -> [UInt8] {
     if v <= 250 {
         return [UInt8(v & 0xff)]
     }
     else if v <= 0xffff {
-        return [0xfc, UInt8(v & 0xff), UInt8((v>>8)&0xff)]
+        return [0xfc, UInt8(v & 0xff), UInt8((v >> 8) & 0xff)]
     }
     else if v <= 0xffffff {
-        return [0xfd, UInt8(v & 0xff), UInt8((v>>8)&0xff), UInt8((v>>16)&0xff)]
+        return [0xfd, UInt8(v & 0xff), UInt8((v >> 8) & 0xff), UInt8((v >> 16) & 0xff)]
     }
     
-    return [0xfe, UInt8(v & 0xff), UInt8((v>>8) & 0xff), UInt8((v>>16) & 0xff), UInt8((v>>24) & 0xff),
-            UInt8((v>>32) & 0xff), UInt8((v>>40) & 0xff), UInt8((v>>48) & 0xff), UInt8((v>>56) & 0xff)]
+    return [0xfe, UInt8(v & 0xff), UInt8((v >> 8) & 0xff), UInt8((v >> 16) & 0xff), UInt8((v >> 24) & 0xff), UInt8((v >> 32) & 0xff), UInt8((v >> 40) & 0xff), UInt8((v >> 48) & 0xff), UInt8((v >> 56) & 0xff)]
 }
 
 func lenEncInt(_ b: [UInt8]) -> (UInt64?, Int) {
-    
     if b.count == 0 {
         return (nil, 1)
     }
     
     switch b[0] {
-        
     // 251: NULL
     case 0xfb:
         return (nil, 1)
         
     // 252: value of following 2
     case 0xfc:
-        return (UInt64(b[1]) | UInt64(b[2])<<8, 3)
+        return (UInt64(b[1]) | UInt64(b[2]) << 8, 3)
         
     // 253: value of following 3
     case 0xfd:
-        return (UInt64(b[1]) | UInt64(b[2])<<8 | UInt64(b[3])<<16, 4)
+        return (UInt64(b[1]) | UInt64(b[2]) << 8 | UInt64(b[3]) << 16, 4)
         
     // 254: value of following 8
     case 0xfe:

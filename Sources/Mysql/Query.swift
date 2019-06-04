@@ -92,7 +92,8 @@ extension Connection {
             if let row = try parser.parse(bytes: bytes) {
                 rows.append(row)
                 continue
-            } else {
+            }
+            else {
                 if parser.hasMoreResults {
                     continue
                 }

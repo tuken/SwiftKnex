@@ -7,20 +7,29 @@
 //
 
 struct Field {
+    
     var tableName: String
+    
     var name: String
+    
     var flags: Flags
+    
     var fieldType: FieldTypes
+    
     var decimals: UInt8
+    
     var origName: String
+    
     var charSetNr: UInt8
+    
     var collation: UInt8
 }
 
 struct Flags {
+    
     let flags: UInt16
     
-    init(flags: UInt16){
+    init(flags: UInt16) {
         self.flags = flags
     }
     
@@ -30,6 +39,7 @@ struct Flags {
 }
 
 enum FieldParserError: Error {
+    
     case tooLongColumns(Int)
 }
 
@@ -39,7 +49,7 @@ final class FieldParser {
     
     let count: Int
     
-    init(count: Int){
+    init(count: Int) {
         self.count = count
     }
     
@@ -92,7 +102,7 @@ final class FieldParser {
         pos += 1
         
         // Flags [uint16]
-        let flags = bytes[pos...pos+1].uInt16()
+        let flags = bytes[pos...pos + 1].uInt16()
         pos += 2
         
         // Decimals [uint8]
@@ -100,20 +110,10 @@ final class FieldParser {
         
         //print(flags, fieldType, FieldFlag(rawValue: flags), FieldTypes(rawValue: fieldType))
         
-        let f = Field(
-            tableName: table ?? "",
-            name: name ?? "",
-            flags: Flags(flags: flags),
-            fieldType: FieldTypes(rawValue: fieldType)!,
-            decimals: decimals,
-            origName: origName ?? "",
-            charSetNr: charSetNr,
-            collation: collation
-        )
+        let f = Field(tableName: table ?? "", name: name ?? "", flags: Flags(flags: flags), fieldType: FieldTypes(rawValue: fieldType)!, decimals: decimals, origName: origName ?? "", charSetNr: charSetNr, collation: collation)
         
         columns.append(f)
         
         return nil
     }
 }
-

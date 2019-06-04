@@ -9,10 +9,15 @@
 import Foundation
 
 public enum StatementError: Error {
+    
     case argsCountMismatch
+    
     case stmtIdNotSet
+    
     case unknownType(String)
+    
     case nilConnection
+    
     case mySQLPacketToLarge
 }
 
@@ -44,11 +49,11 @@ final class Statement {
         bytes.append(0)
         
         // iteration_count (uint32(1)) [4 bytes]
-        bytes.append(contentsOf:[1, 0, 0, 0])
+        bytes.append(contentsOf: [1, 0, 0, 0])
         
         if params.count > 0 {
-            let nmLen = (params.count + 7)/8 //(args.count + 7)>>3
-            var nullBitmap = [UInt8](repeating:0, count: nmLen)
+            let nmLen = (params.count + 7) / 8 //(args.count + 7)>>3
+            var nullBitmap = [UInt8](repeating: 0, count: nmLen)
             
             for index in 0..<params.count {
                 let mi = Mirror(reflecting: params[index])
@@ -56,7 +61,7 @@ final class Statement {
                 //check for null value
                 if ((mi.displayStyle == .optional) && (mi.children.count == 0)) || params[index] is NSNull {
                     let nullByte = index >> 3
-                    let nullMask = UInt8(UInt(1) << UInt(index-(nullByte<<3)))
+                    let nullMask = UInt8(UInt(1) << UInt(index - (nullByte << 3)))
                     nullBitmap[nullByte] |= nullMask
                 }
             }
@@ -77,6 +82,7 @@ final class Statement {
                     dataTypes += [UInt8].UInt16Array(UInt16(FieldTypes.null.rawValue))
                     continue
                 }
+                
                 switch parameter {
                 case let param as Int64:
                     dataTypes += [UInt8].UInt16Array(UInt16(FieldTypes.longlong.rawValue))
@@ -127,37 +133,40 @@ final class Statement {
                     args += [UInt8].FloatArray(param)
                     
                 case let param as [UInt8]:
-                    if param.count < maxPackAllowed - 1024*1024 {
+                    if param.count < maxPackAllowed - 1024 * 1024 {
                         let lenArr = lenEncIntArray(UInt64(param.count))
                         dataTypes += [UInt8].UInt16Array(UInt16(FieldTypes.blob.rawValue))
                         args += lenArr
                         args += param
-                    } else {
+                    }
+                    else {
                         throw StatementError.mySQLPacketToLarge
                     }
                     
                 case let param as Data:
                     let count = param.count / MemoryLayout<UInt8>.size
                     
-                    if count < maxPackAllowed - 1024*1024 {
-                        var arr = [UInt8](repeating:0, count: count)
+                    if count < maxPackAllowed - 1024 * 1024 {
+                        var arr = [UInt8](repeating: 0, count: count)
                         param.copyBytes(to: &arr, count: count)
                         
                         let lenArr = lenEncIntArray(UInt64(arr.count))
                         dataTypes += [UInt8].UInt16Array(UInt16(FieldTypes.longBlob.rawValue))
                         args += lenArr
                         args += arr
-                    } else {
+                    }
+                    else {
                         throw StatementError.mySQLPacketToLarge
                     }
                     
                 case let param as String:
-                    if param.utf8.count < maxPackAllowed - 1024*1024 {
+                    if param.utf8.count < maxPackAllowed - 1024 * 1024 {
                         let lenArr = lenEncIntArray(UInt64(param.utf8.count))
                         dataTypes += [UInt8].UInt16Array(UInt16(FieldTypes.string.rawValue))
                         args += lenArr
                         args += [UInt8](param.utf8)
-                    } else {
+                    }
+                    else {
                         throw StatementError.mySQLPacketToLarge
                     }
                     
