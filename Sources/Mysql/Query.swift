@@ -16,6 +16,18 @@ extension Connection {
         }
     }
     
+    public func query(_ query: String) throws -> QueryResult {
+        if self.isClosed {
+            throw StreamError.alreadyClosed
+        }
+        
+        sqlLog(query, bindParams: [])
+        
+        try write(.query, query: query)
+        
+        return try readResults(RowDataParser: RowDataPacket.self)
+    }
+
     public func query(_ query: String, bindParams params: [Any]) throws -> QueryResult {
         if self.isClosed {
             throw StreamError.alreadyClosed
@@ -57,18 +69,6 @@ extension Connection {
         }
     
         return Statement(prepareResult: prepareResult)
-    }
-    
-    public func query(_ query: String) throws -> QueryResult {
-        if self.isClosed {
-            throw StreamError.alreadyClosed
-        }
-        
-        sqlLog(query, bindParams: [])
-        
-        try write(.query, query: query)
-        
-        return try readResults(RowDataParser: RowDataPacket.self)
     }
     
     private func readResults(RowDataParser: RowDataParsable.Type) throws -> QueryResult {
