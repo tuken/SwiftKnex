@@ -10,7 +10,7 @@ let package = Package(
         .executable(name: "SwiftKnexMigration", targets: ["SwiftKnexMigration"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/tuken/Prorsum.git", from: "0.4.0")
+        .package(url: "https://github.com/noppoMan/Prorsum.git", from: "0.3.0"),
     ],
     targets: [
         .target(name: "Mysql", dependencies: ["Prorsum"]),
