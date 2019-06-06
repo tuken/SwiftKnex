@@ -55,7 +55,7 @@ extension Date {
     
     init?(timeString:String) {
         let dateStringFormatter = DateFormatter()
-        dateStringFormatter.dateFormat = "HH-mm-ss"
+        dateStringFormatter.dateFormat = "HH:mm:ss"
         dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
         if let d = dateStringFormatter.date(from: timeString) {
             self.init(timeInterval:0, since:d)
@@ -66,7 +66,7 @@ extension Date {
     
     init?(timeStringUsec:String) {
         let dateStringFormatter = DateFormatter()
-        dateStringFormatter.dateFormat = "HH-mm-ss.SSSSSS"
+        dateStringFormatter.dateFormat = "HH:mm:ss.SSSSSS"
         dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
         if let d = dateStringFormatter.date(from: timeStringUsec) {
             self.init(timeInterval:0, since:d)
@@ -116,7 +116,7 @@ extension Date {
     
     func timeString() -> String {
         let dateStringFormatter = DateFormatter()
-        dateStringFormatter.dateFormat = "hh-mm-ss"
+        dateStringFormatter.dateFormat = "HH:mm:ss"
         dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
         return dateStringFormatter.string(from: self)
     }
