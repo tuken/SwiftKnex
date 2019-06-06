@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="4.0.3"
+VERSION="4.1.3"
 
 # Determine OS
 UNAME=`uname`;
