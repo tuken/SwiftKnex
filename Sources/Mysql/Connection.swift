@@ -67,6 +67,13 @@ public final class Connection: ConnectionType {
         
         _isClosed = false
     }
+
+    func reopen() throws {
+        stream.close()
+        isUsed = false
+        _isClosed = true
+        try self.open()
+    }
     
     func write(_ cmd: Commands, query: String) throws {
         try stream.writePacket([cmd.rawValue] + query.utf8, packnr: -1)

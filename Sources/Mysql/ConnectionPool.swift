@@ -57,11 +57,59 @@ public final class ConnectionPool: ConnectionType {
         self.connections = try (0..<maxPoolSize).map { _ in
             return try Connection(url: url, user: user, password: password, database: database)
         }
+        
+        #if os(Linux)
+        let _ = Timer.scheduledTimer(withTimeInterval: TimeInterval(3600), repeats: true) { _ in
+            print("timer! \"SELECT 1\"")
+            do {
+                for con in self.connections {
+                    if con.isUsed {
+                        continue
+                    }
+                    
+                    con.reserve()
+                    let _ = try con.query("SELECT 1")
+                    con.release()
+                }
+            }
+            catch {
+                print("failed to \"SELECT 1\"")
+            }
+        }
+        #endif
     }
     
     public func query(_ sql: String, bindParams params: [Any]) throws -> QueryResult {
         let con = try getConnection()
-        let result = try con.query(sql, bindParams: params)
+        var result: QueryResult
+        do {
+            result = try con.query(sql, bindParams: params)
+        }
+        catch {
+            if let e = error as? SocketError {
+                switch e {
+                case .alreadyClosed:
+                    Logger.debug("reopen")
+                    try con.reopen()
+                    Logger.debug("re query")
+                    result = try con.query(sql, bindParams: params)
+                default: throw error
+                }
+            }
+            else if let e = error as? StreamError {
+                switch e {
+                case .alreadyClosed:
+                    Logger.debug("reopen")
+                    try con.reopen()
+                    Logger.debug("re query")
+                    result = try con.query(sql, bindParams: params)
+                default: throw error
+                }
+            }
+            else {
+                throw error
+            }
+        }
         
         if !con.isTransacting {
             con.release()
@@ -72,7 +120,35 @@ public final class ConnectionPool: ConnectionType {
     
     public func query(_ sql: String) throws -> QueryResult {
         let con = try getConnection()
-        let result = try con.query(sql)
+        var result: QueryResult
+        do {
+            result = try con.query(sql)
+        }
+        catch {
+            if let e = error as? SocketError {
+                switch e {
+                case .alreadyClosed:
+                    Logger.debug("reopen")
+                    try con.reopen()
+                    Logger.debug("re query")
+                    result = try con.query(sql)
+                default: throw error
+                }
+            }
+            else if let e = error as? StreamError {
+                switch e {
+                case .alreadyClosed:
+                    Logger.debug("reopen")
+                    try con.reopen()
+                    Logger.debug("re query")
+                    result = try con.query(sql)
+                default: throw error
+                }
+            }
+            else {
+                throw error
+            }
+        }
         
         if !con.isTransacting {
             con.release()
