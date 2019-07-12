@@ -87,6 +87,8 @@ public final class ConnectionPool: ConnectionType {
             throw ConnectionPoolError.failedToGetConnectionFromPool
         }
         
+        cond.mutex.lock()
+        defer { cond.mutex.unlock() }
         for con in connections {
             if con.isUsed {
                 continue
@@ -96,9 +98,7 @@ public final class ConnectionPool: ConnectionType {
             return con
         }
         
-        cond.mutex.lock()
         _ = cond.wait(timeout: 0.1)
-        cond.mutex.unlock()
         
         return try getConnection(retryCount + 1)
     }
