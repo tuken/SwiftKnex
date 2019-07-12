@@ -89,9 +89,7 @@ public final class ConnectionPool: ConnectionType {
             if let e = error as? SocketError {
                 switch e {
                 case .alreadyClosed:
-                    Logger.debug("reopen")
                     try con.reopen()
-                    Logger.debug("re query")
                     result = try con.query(sql, bindParams: params)
                 default: throw error
                 }
@@ -99,9 +97,7 @@ public final class ConnectionPool: ConnectionType {
             else if let e = error as? StreamError {
                 switch e {
                 case .alreadyClosed:
-                    Logger.debug("reopen")
                     try con.reopen()
-                    Logger.debug("re query")
                     result = try con.query(sql, bindParams: params)
                 default: throw error
                 }
@@ -128,9 +124,7 @@ public final class ConnectionPool: ConnectionType {
             if let e = error as? SocketError {
                 switch e {
                 case .alreadyClosed:
-                    Logger.debug("reopen")
                     try con.reopen()
-                    Logger.debug("re query")
                     result = try con.query(sql)
                 default: throw error
                 }
@@ -138,9 +132,7 @@ public final class ConnectionPool: ConnectionType {
             else if let e = error as? StreamError {
                 switch e {
                 case .alreadyClosed:
-                    Logger.debug("reopen")
                     try con.reopen()
-                    Logger.debug("re query")
                     result = try con.query(sql)
                 default: throw error
                 }
