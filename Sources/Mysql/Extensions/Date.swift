@@ -37,74 +37,62 @@
 import Foundation
 
 extension Date {
-    init?(dateString:String?) {
-        guard dateString != nil else {
-            return nil
-        }
+    
+    init?(dateString: String?) {
+        guard dateString != nil else { return nil }
         let dateStringFormatter = DateFormatter()
         dateStringFormatter.dateFormat = "yyyy-MM-dd"
         dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
-        
         if let d = dateStringFormatter.date(from: dateString!) {
-            self.init(timeInterval:0, since:d)
+            self.init(timeInterval: 0, since: d)
             return
         }
         return nil
     }
     
     
-    init?(timeString:String) {
+    init?(timeString: String) {
         let dateStringFormatter = DateFormatter()
         dateStringFormatter.dateFormat = "HH:mm:ss"
         dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
         if let d = dateStringFormatter.date(from: timeString) {
-            self.init(timeInterval:0, since:d)
+            self.init(timeInterval: 0, since: d)
             return
         }
         return nil
     }
     
-    init?(timeStringUsec:String) {
+    init?(timeStringUsec: String) {
         let dateStringFormatter = DateFormatter()
         dateStringFormatter.dateFormat = "HH:mm:ss.SSSSSS"
         dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
         if let d = dateStringFormatter.date(from: timeStringUsec) {
-            self.init(timeInterval:0, since:d)
+            self.init(timeInterval: 0, since: d)
             return
         }
         return nil
     }
     
-    init?(dateTimeString:String) {
+    init?(dateTimeString: String) {
         let dateStringFormatter = DateFormatter()
         dateStringFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
         if let d = dateStringFormatter.date(from: dateTimeString) {
-            self.init(timeInterval:0, since:d)
+            self.init(timeInterval: 0, since: d)
+            return
         }
-        else {
-            return nil
-        }
+        return nil
     }
     
     init?(dateTimeStringUsec: String) {
-        
-        struct statDFT {
-            static var dateStringFormatter :  DateFormatter? = nil
-            static var token : Int = 0
+        let dateStringFormatter = DateFormatter()
+        dateStringFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSS"
+        dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
+        if let d = dateStringFormatter.date(from: dateTimeStringUsec) {
+            self.init(timeInterval: 0, since: d)
+            return
         }
-        
-        // TODO once
-        statDFT.dateStringFormatter = DateFormatter()
-        statDFT.dateStringFormatter!.dateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSS"
-        statDFT.dateStringFormatter!.locale = Locale(identifier: "en_US_POSIX")
-        
-        if let d = statDFT.dateStringFormatter!.date(from: dateTimeStringUsec) {
-            self.init(timeInterval:0, since:d)
-        }
-        else {
-            return nil
-        }
+        return nil
     }
     
     func dateString() -> String {
@@ -122,16 +110,9 @@ extension Date {
     }
     
     func dateTimeString() -> String {
-        struct statDFT {
-            static var dateStringFormatter :  DateFormatter? = nil
-            static var token : Int = 0
-        }
-        
-        // TODO once
-        statDFT.dateStringFormatter = DateFormatter()
-        statDFT.dateStringFormatter!.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        statDFT.dateStringFormatter!.locale = Locale(identifier: "en_US_POSIX")
-        
-        return statDFT.dateStringFormatter!.string(from: self)
+        let dateStringFormatter = DateFormatter()
+        dateStringFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
+        return dateStringFormatter.string(from: self)
     }
 }
